@@ -7,7 +7,9 @@ dado migrado, não faz parte do app Next.js; a pasta `PAINEL CC/` que
 originou este projeto foi removida em 2026-09-15, depois do HTML e do
 `.xlsx` terem sido movidos pra cá). Repositório próprio:
 `https://github.com/mitterlucas/PAINEL-CC.git` (mesma conta do
-`PAINEL 5S NEXT`, branch `master`).
+`PAINEL 5S NEXT`, branch `master`). Deploy em produção (Vercel):
+**https://painel-cc-two.vercel.app/** — sem variáveis de ambiente, sem
+login; redeploy automático a cada push na `master`.
 
 **Antes de continuar o trabalho, releia este arquivo inteiro** — ele existe
 pra permitir retomar em outra conversa sem reprocessar a análise do HTML
@@ -295,7 +297,14 @@ reverificar; a lógica está descrita acima, não precisa arqueologia).
   real (`page.emulateMedia({media:'print'})` + screenshot): filtros/botões/
   tooltip/hints escondidos, card "Detalhamento" (`.no-print`) escondido,
   fundo branco, 9 cards visíveis — como esperado.
-- **Fases seguintes:** 7 (deploy Vercel).
+- **Fase 7 (deploy) ✅ (2026-09-15)** — projeto importado na Vercel a
+  partir do GitHub (`mitterlucas/PAINEL-CC`), sem variáveis de ambiente
+  (nada a configurar — sem banco, sem auth). URL de produção:
+  **https://painel-cc-two.vercel.app/**. Redeploy automático a cada push
+  na `master` — inclusive depois de `pnpm importar-rnc` + commit de um
+  `rnc.json` atualizado, sem nenhum passo manual adicional.
+
+**Todas as 7 fases do projeto estão concluídas.**
 
 ## Ponto em aberto (não bloqueante)
 
