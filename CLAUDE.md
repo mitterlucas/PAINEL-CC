@@ -1,10 +1,11 @@
 # Painel CC (RNC) — regras, stack e estado
 
 Reescrita, em Next.js, do relatório HTML autocontido
-`PAINEL CC/Relatorio_de_Reclamacoes_RNC_jan_a_ago_2026_Alltak.html` (fora
-deste repositório — projeto irmão em `Desktop/Python/PAINEL CC/`, só o HTML
-fica lá agora; o `.xlsx` de origem já foi movido pra dentro deste projeto,
-ver "Dados" abaixo). Repositório próprio:
+`Relatorio_de_Reclamacoes_RNC_jan_a_ago_2026_Alltak.html` (raiz deste
+repositório — mantido só como referência para comparação/validação contra o
+dado migrado, não faz parte do app Next.js; a pasta `PAINEL CC/` que
+originou este projeto foi removida em 2026-09-15, depois do HTML e do
+`.xlsx` terem sido movidos pra cá). Repositório próprio:
 `https://github.com/mitterlucas/PAINEL-CC.git` (mesma conta do
 `PAINEL 5S NEXT`, branch `master`).
 
