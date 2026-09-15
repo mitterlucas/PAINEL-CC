@@ -124,7 +124,7 @@ reverificar; a lógica está descrita acima, não precisa arqueologia).
 | `themeBtn` / `prefers-color-scheme` | `ThemeToggleButton.tsx` ✅ (usa `next-themes`, mesmo comportamento do original: sem persistência entre sessões) |
 | `csvBtn` (Blob client-side) | `exportarCsv()` dentro de `RelatorioRncClient.tsx` ✅, ligado ao botão em `Cabecalho.tsx` (prop `onExportarCsv`) |
 | `:root{--plane:...}` / `html[data-theme]` | tokens `--rnc-*` em `globals.css` ✅ — porte 1:1 dos valores claro/escuro do original, seletor `html[data-theme="dark"]` virou `:root.dark` (mesma convenção de `ThemeProvider.tsx`) |
-| `@media print{...}` | portado 1:1 em `globals.css` ✅ (não testado numa impressão real ainda) |
+| `@media print{...}` | portado 1:1 em `globals.css` ✅ — conferido na Fase 6 com conteúdo real via `emulateMedia({media:'print'})` |
 | `idbar`/`footer` | `Cabecalho.tsx` ✅ / `Rodape.tsx` ✅ |
 | `.filters` (`fMes`/`fRes`/`fFam`/`fRnc`/`fBusca`) + `renderChips()`/`renderNote()` | `BarraFiltros.tsx` ✅ — Client Component, chips/selects/busca controlados + `.active-note` (tags removíveis, "Limpar tudo") |
 | `renderKpis()` (HTML dos cartões) | `Kpis.tsx` ✅ — recebe `KpisRnc` já calculado (`calcularKpis`) com `rows` filtradas |
@@ -279,10 +279,23 @@ reverificar; a lógica está descrita acima, não precisa arqueologia).
     clique em cabeçalho pra ordenar, "Limpar tudo", botão CSV habilitado) —
     todos os `active-note`/KPIs/gráficos reagem corretamente, sem erro no
     console, claro e escuro.
-- **Fases seguintes:** 6 (verificação: `typecheck/lint/test/build` +
-  comparação visual/numérica contra o HTML — grande parte já coberta pelas
-  verificações feitas fase a fase, falta uma passada final dedicada), 7
-  (deploy Vercel).
+- **Fase 6 (verificação final) ✅ (2026-09-15)** — `typecheck`/`lint`/
+  `test`(51)/`build` limpos, mais uma comparação automatizada (Playwright,
+  dois `BrowserContext` na mesma execução: um abrindo o HTML original via
+  `file://`, outro o Next.js local) extraindo e comparando texto renderizado
+  — KPIs, tabela acessível do donut, valores dos 6 gráficos, contagem/linhas
+  das duas tabelas — em 10 cenários: sem filtro, mês, mês+resultado,
+  família, busca, busca sem resultado, métrica=qtd, clique em célula do
+  heatmap, e ordenação da tabela de Detalhamento (asc e desc).
+  **Único bug real encontrado e corrigido:** a tag de filtro de busca em
+  `BarraFiltros.tsx` usava aspas retas (`"..."`) — o original usa aspas
+  curvas “…” (`renderNote()`, linha 777). Fora isso, 0 diferenças em todos
+  os 10 cenários. Export de CSV também comparado byte-a-byte (filtro
+  combinado busca+mês) — idêntico. `@media print` conferido com conteúdo
+  real (`page.emulateMedia({media:'print'})` + screenshot): filtros/botões/
+  tooltip/hints escondidos, card "Detalhamento" (`.no-print`) escondido,
+  fundo branco, 9 cards visíveis — como esperado.
+- **Fases seguintes:** 7 (deploy Vercel).
 
 ## Ponto em aberto (não bloqueante)
 

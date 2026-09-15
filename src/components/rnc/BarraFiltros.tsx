@@ -59,7 +59,7 @@ export function BarraFiltros({
     ...(filtro.busca.trim()
       ? [
           {
-            rotulo: `produto "${filtro.busca.trim()}"`,
+            rotulo: `produto “${filtro.busca.trim()}”`,
             remover: () => dispatch({ tipo: "DEFINIR_BUSCA", busca: "" }),
           },
         ]
