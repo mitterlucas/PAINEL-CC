@@ -140,7 +140,7 @@ reverificar; a lógica está descrita acima, não precisa arqueologia).
   corrigido na Fase 3).
 - **Fase 1 (ingestão) ✅** (commit `665c66a`, pushado) — ver seção "Dados"
   acima para todos os detalhes.
-- **Fase 2 (domínio puro) ✅** — aguardando autorização para commit. Portado
+- **Fase 2 (domínio puro) ✅** (commit `5151fa8`, pushado) — portado
   de `Relatorio_de_Reclamacoes_RNC_jan_a_ago_2026_Alltak.html` (linhas
   ~296-426 do `<script>`) para `src/domain/`:
   - `rnc-filtros.ts` — `filtra()`/`val()`/`agrupa()`, com `FiltroState`
@@ -158,7 +158,7 @@ reverificar; a lógica está descrita acima, não precisa arqueologia).
     `calcularKpis` contra os números já validados na Fase 1 (total 1.160,
     soma de quantidade 72.769,15, 873 procedentes). `typecheck`/`lint`
     limpos.
-- **Fase 3 (tema/layout) ✅** — aguardando autorização para commit. Objetivo
+- **Fase 3 (tema/layout) ✅** (commit `5151fa8`, pushado) — objetivo
   explícito do usuário: **preservar o frontend do HTML original** — não
   reinventar a UI em componentes shadcn genéricos.
   - `globals.css` — tokens `--rnc-*` com os valores claro/escuro 1:1 do
