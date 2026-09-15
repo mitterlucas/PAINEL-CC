@@ -118,17 +118,17 @@ reverificar; a lógica está descrita acima, não precisa arqueologia).
 | `filtra()`, `agrupa()`, `val()` | `src/domain/rnc-filtros.ts` ✅ |
 | `renderKpis()` (cálculo) | `src/domain/rnc-kpis.ts` ✅ |
 | `mesLab/rncDesc/rncFull/rncCurto/fmtMet` | `src/domain/rnc-formatacao.ts` ✅ |
-| `svg()/el()/txt()/rbar()/ticks()` + cada `render*` de gráfico | `src/components/rnc/charts/*.tsx` — **pendente** (Fase 4): `GraficoEvolucaoMensal`, `GraficoDonutResultado`, `GraficoStackMensal`, `BarraHorizontal` (genérico, reuso produto/problema/família), `GraficoDiaSemana`, `HeatmapMesProblema` |
-| `renderRec()` / `renderDet()` | `TabelaReincidencia.tsx` / `TabelaDetalhamento.tsx` (TanStack Table) — **pendente** (Fase 5) |
-| `st` (objeto mutável) + `render()` | `useReducer` em `src/components/rnc/RelatorioRncClient.tsx` — **pendente** (Fase 5): liga `BarraFiltros.tsx` (hoje estática), os gráficos e o botão de CSV (hoje `disabled`) ao `FiltroState`/`filtra()` reais |
+| `svg()/el()/txt()/rbar()/ticks()` + cada `render*` de gráfico | `src/components/rnc/graficos/*.tsx` ✅: `GraficoEvolucaoMensal`, `GraficoDonutResultado`, `GraficoStackMensal`, `BarraHorizontal` (genérico, reuso produto/problema/família), `GraficoDiaSemana`, `HeatmapMesProblema` |
+| `renderRec()` / `renderDet()` | `TabelaReincidencia.tsx` / `TabelaDetalhamento.tsx` ✅ (`@tanstack/react-table` v9) |
+| `st` (objeto mutável) + `render()` | `useReducer` (`estado-pagina.ts`) em `src/components/rnc/RelatorioRncClient.tsx` ✅ — liga `BarraFiltros.tsx`, os gráficos e o botão de CSV ao `FiltroState`/`filtra()` reais |
 | `themeBtn` / `prefers-color-scheme` | `ThemeToggleButton.tsx` ✅ (usa `next-themes`, mesmo comportamento do original: sem persistência entre sessões) |
-| `csvBtn` (Blob client-side) | handler dentro do Client Component — **pendente** (Fase 5); botão já existe em `Cabecalho.tsx`, `disabled` até lá |
+| `csvBtn` (Blob client-side) | `exportarCsv()` dentro de `RelatorioRncClient.tsx` ✅, ligado ao botão em `Cabecalho.tsx` (prop `onExportarCsv`) |
 | `:root{--plane:...}` / `html[data-theme]` | tokens `--rnc-*` em `globals.css` ✅ — porte 1:1 dos valores claro/escuro do original, seletor `html[data-theme="dark"]` virou `:root.dark` (mesma convenção de `ThemeProvider.tsx`) |
-| `@media print{...}` | portado 1:1 em `globals.css` ✅ (não testado numa impressão real ainda — os gráficos/tabelas que o `@media print` esconde/ajusta só existem a partir da Fase 4/5) |
+| `@media print{...}` | portado 1:1 em `globals.css` ✅ (não testado numa impressão real ainda) |
 | `idbar`/`footer` | `Cabecalho.tsx` ✅ / `Rodape.tsx` ✅ |
-| `.filters` (`fMes`/`fRes`/`fFam`/`fRnc`/`fBusca`) | `BarraFiltros.tsx` ✅ — casca visual com opções reais de `rnc.json`, **sem interatividade** ainda (Fase 5) |
-| `renderKpis()` (HTML dos cartões) | `Kpis.tsx` ✅ — recebe `KpisRnc` já calculado (`calcularKpis`), por isso funciona hoje com o dataset completo e não muda quando a Fase 5 passar `rows` filtradas |
-| `.grid` com os 9 cards de gráfico/tabela | `Card.tsx` ✅ (casca `c3`..`c12`) + `page.tsx` ✅ — mesma ordem/tamanho de coluna do original; conteúdo de cada card é placeholder (`Gráfico — Fase 4` / `Tabela — Fase 5`) até a fase correspondente |
+| `.filters` (`fMes`/`fRes`/`fFam`/`fRnc`/`fBusca`) + `renderChips()`/`renderNote()` | `BarraFiltros.tsx` ✅ — Client Component, chips/selects/busca controlados + `.active-note` (tags removíveis, "Limpar tudo") |
+| `renderKpis()` (HTML dos cartões) | `Kpis.tsx` ✅ — recebe `KpisRnc` já calculado (`calcularKpis`) com `rows` filtradas |
+| `.grid` com os 9 cards de gráfico/tabela | `Card.tsx` ✅ (casca `c3`..`c12`) + `page.tsx`/`RelatorioRncClient.tsx` ✅ — mesma ordem/tamanho de coluna do original, todos os 9 cards com conteúdo real |
 
 ## Estado
 
@@ -194,13 +194,95 @@ reverificar; a lógica está descrita acima, não precisa arqueologia).
     (Playwright, claro e escuro) lado a lado com o HTML original — mesma
     tipografia, cores, espaçamento e estrutura de grid; nenhum erro no
     console do navegador.
-- **Fases seguintes:** 4 (os 6 gráficos SVG em React, consumindo
-  `rnc-filtros.ts`/`rnc-formatacao.ts`/`paleta.ts`, substituindo os
-  placeholders "Gráfico — Fase 4"), 5 (tabelas + `BarraFiltros`
-  interativa + `useReducer` + export CSV, consumindo `rnc-kpis.ts` —
-  `Kpis.tsx`/`Card.tsx` já prontos pra receber dados filtrados), 6
-  (verificação: `typecheck/lint/test/build` + comparação visual/numérica
-  contra o HTML), 7 (deploy Vercel).
+- **Fase 4 (gráficos) ✅** (não commitado ainda) — os 6 gráficos SVG em
+  React, em `src/components/rnc/graficos/`: `svg-math.ts`
+  (`caminhoBarraArredondada`/`ticksEixo`, porte puro de `rbar()`/`ticks()`),
+  `useTooltipFlutuante.ts`/`TooltipFlutuante.tsx` (cada gráfico tem sua
+  própria instância de tooltip — diferente do `#tip` global único do HTML
+  original — posicionada/clampada do mesmo jeito), `GraficoEvolucaoMensal`,
+  `GraficoDonutResultado`, `GraficoStackMensal`, `BarraHorizontal`
+  (genérico, reusado por produto/problema/família em `page.tsx`),
+  `GraficoDiaSemana`, `HeatmapMesProblema`. Todos recebem `rows` já
+  filtradas por quem chama — o clique-pra-filtrar (`onClickMes`/
+  `onClickCelula`/etc.) já existe como prop opcional em alguns, sem efeito
+  ainda porque `page.tsx` não passa handler nenhum (isso é Fase 5). O
+  `HeatmapMesProblema` é o caso especial: no original ele recalcula sua
+  própria base ignorando o filtro de RNC (`filtra('rnc')`); aqui isso vira
+  responsabilidade de quem chama — `page.tsx` hoje passa as mesmas `rows`
+  dos outros gráficos (equivalente, já que o filtro está vazio), e a Fase 5
+  precisa lembrar de passar `filtra(data, filtro, 'rnc')` especificamente
+  pra esse componente.
+  `page.tsx` monta os 9 cards com dados reais (dataset completo, métrica
+  fixa em `"n"`) — só as duas tabelas (Reincidência/Detalhamento) seguem
+  placeholder.
+  Verificado (nesta sessão e checado de novo, independentemente, numa
+  segunda sessão em paralelo): `typecheck`/`lint`/`test` (37 testes)/
+  `next build` limpos; visual conferido rodando `pnpm dev` + screenshot
+  Playwright (claro e escuro) — layout, cores e números batendo com o HTML
+  original, nenhum erro no console.
+  **Nota de processo:** esta fase foi implementada em paralelo por duas
+  sessões Claude Code diferentes sem coordenação prévia (mesma pasta de
+  trabalho) — a versão em `src/components/rnc/graficos/` é a que ficou;
+  uma segunda pasta `charts/` com uma implementação equivalente (Context de
+  tooltip único em vez de tooltip por gráfico) foi descartada depois de
+  comparação. Se abrir uma sessão nova pra continuar este projeto, vale
+  avisar/checar se já não há outra sessão ativa nele.
+- **Fase 5 (interatividade) ✅ (2026-09-15, ainda não commitado)** — o
+  `useReducer` que liga tudo, mais as duas tabelas que faltavam:
+  - `src/components/rnc/estado-pagina.ts` — porta de `st` (mutável) +
+    `toggleSet()` do original: `EstadoPagina` (`FiltroState` do domínio +
+    `metrica` + `ordenacaoDetalhamento`, os dois últimos fora do
+    `FiltroState` puro porque não filtram linha nenhuma, só mudam exibição/
+    ordenação), `reduzirEstadoPagina()` (reducer puro, testado em
+    `estado-pagina.test.ts`) e dois helpers de toggle (`alternarValor`,
+    `alternarBusca` — o segundo case-insensitive porque é assim que
+    `filtra()` já compara busca contra produto).
+  - `src/components/rnc/RelatorioRncClient.tsx` — o único componente com
+    `useReducer`; recebe `data` do `page.tsx` (que virou casca fina) e
+    renderiza `Cabecalho`/`BarraFiltros`/`Kpis`/a grid inteira, todos
+    alimentados pelas MESMAS `linhas = filtra(data, filtro)` (exceto o
+    heatmap, que recebe `filtra(data, filtro, 'rnc')` — ver nota da Fase
+    4). Cada gráfico/tabela recebe o handler de clique certo (`onClickMes`,
+    `onClickRes`, `aoClicar`, `onClickCelula`, `onClickProduto`,
+    `onOrdenar`) despachando a ação correspondente — nenhum gráfico
+    precisou mudar (Fase 4 já tinha deixado os hooks prontos). CSV export
+    (Blob client-side, porte 1:1 de `csvBtn.onclick`) mora aqui porque
+    precisa das linhas filtradas atuais; `Cabecalho` só ganhou um prop
+    `onExportarCsv?` pra ligar o botão que ficava `disabled`.
+  - `BarraFiltros.tsx` — virou Client Component: chips de mês/resultado/
+    métrica com `aria-pressed` real, selects de família/problema
+    controlados, busca controlada, e a `.active-note` (tags removíveis +
+    "Limpar tudo" + contagem `N de M registros`), porte de `renderChips()`/
+    `renderNote()`.
+  - `TabelaReincidencia.tsx` / `TabelaDetalhamento.tsx` (novos) — porte de
+    `renderRec()`/`renderDet()`, usando `@tanstack/react-table` **v9**
+    (API bem diferente da v8: `useTable({ features, columns, data })` no
+    lugar de `useReactTable({ getCoreRowModel: getCoreRowModel() })` — o
+    pacote instalado vem com skills `node_modules/@tanstack/react-table/
+    skills/*/SKILL.md`, ler `getting-started` antes de mexer aqui de novo).
+    Reincidência não precisou de sorting da lib (ordem sempre fixa no
+    original); Detalhamento usa `table.getRowModel()`/`table.FlexRender`
+    pra células, mas o `<thead>` é renderizado à mão (com `onOrdenar`/seta
+    ▲▼) porque a ordenação é estado do `RelatorioRncClient`
+    (`ordenacaoDetalhamento`), não do TanStack — mesma semântica exata do
+    `keyOf`/`sortDet` original, limite de 400 linhas exibidas preservado.
+  - **Gotcha de infra:** `vitest.config.mts` (novo) — os testes de domínio
+    (Fase 2) nunca precisaram de config porque só usam import relativo;
+    `estado-pagina.ts` importa o domínio via alias `@/...` igual ao resto
+    do app, e o Vitest (diferente do `tsc`/Next) não lê `paths` do
+    `tsconfig.json` sozinho — precisa do alias espelhado em
+    `resolve.alias`.
+  - Verificado: `typecheck`/`lint`/`test` (51 testes)/`next build`
+    limpos. Testado interativamente com Playwright (clique em chip de mês,
+    clique em barra de produto com toggle liga/desliga, clique em célula
+    do heatmap com toggle, clique em linha da tabela de reincidência,
+    clique em cabeçalho pra ordenar, "Limpar tudo", botão CSV habilitado) —
+    todos os `active-note`/KPIs/gráficos reagem corretamente, sem erro no
+    console, claro e escuro.
+- **Fases seguintes:** 6 (verificação: `typecheck/lint/test/build` +
+  comparação visual/numérica contra o HTML — grande parte já coberta pelas
+  verificações feitas fase a fase, falta uma passada final dedicada), 7
+  (deploy Vercel).
 
 ## Ponto em aberto (não bloqueante)
 

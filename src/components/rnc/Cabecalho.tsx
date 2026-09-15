@@ -10,7 +10,10 @@ const data = rncJson as unknown as RncData;
 // Portado de `.idbar` + `header.top` do HTML original (linhas 181-198),
 // incluindo o texto do período e a legenda de resultado montados em
 // `document.getElementById('periodo')`/`'legTop'` (linhas 802-807).
-export function Cabecalho() {
+// `onExportarCsv` (Fase 5) liga o botão que ficava `disabled` — porta de
+// `csvBtn.onclick` (linhas 823-832), a lógica em si mora no
+// `RelatorioRncClient` porque precisa das linhas filtradas atuais.
+export function Cabecalho({ onExportarCsv }: { onExportarCsv?: () => void }) {
   const primeira = data.rows[0];
   const ultima = data.rows.at(-1);
 
@@ -44,12 +47,7 @@ export function Cabecalho() {
             ))}
           </div>
           <ThemeToggleButton />
-          <button
-            type="button"
-            className="tbtn"
-            disabled
-            title="Exportação liberada quando os filtros forem ligados (Fase 5)"
-          >
+          <button type="button" className="tbtn" onClick={onExportarCsv} disabled={!onExportarCsv}>
             ↓ Exportar CSV
           </button>
         </div>

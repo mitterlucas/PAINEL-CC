@@ -490,7 +490,7 @@ svg {
 }
 
 /* ---------- tooltip ---------- */
-#tip {
+.tip-flutuante {
   position: fixed;
   z-index: 99;
   pointer-events: none;
@@ -504,18 +504,18 @@ svg {
   transition: opacity 0.1s;
   max-width: 290px;
 }
-#tip .tt {
+.tip-flutuante .tt {
   font-weight: 700;
   margin-bottom: 4px;
   font-size: 12px;
 }
-#tip .tr {
+.tip-flutuante .tr {
   display: flex;
   justify-content: space-between;
   gap: 16px;
   color: var(--rnc-ink-2);
 }
-#tip .tr b {
+.tip-flutuante .tr b {
   color: var(--rnc-ink);
   font-variant-numeric: tabular-nums;
 }
@@ -701,7 +701,7 @@ footer .fmeta {
   }
   .filters,
   .tbtn,
-  #tip {
+  .tip-flutuante {
     display: none !important;
   }
   .card,
