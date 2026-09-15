@@ -115,39 +115,92 @@ reverificar; a lógica está descrita acima, não precisa arqueologia).
 | `const DATA = {...}` | `src/data/rnc.json` ✅ + `src/domain/rnc-tipos.ts` ✅ (tipos) |
 | `const R_RES=0,...` | `src/domain/rnc-tipos.ts` (`R_RES`...`R_FAM`) ✅ |
 | glossário/família reverse-engineered | `src/domain/rnc-glossario.ts` ✅ |
-| `filtra()`, `agrupa()`, `val()` | `src/domain/rnc-filtros.ts` — **pendente** (Fase 2) |
-| `renderKpis()` (cálculo) | `src/domain/rnc-kpis.ts` — **pendente** (Fase 2) |
-| `mesLab/rncDesc/rncFull/rncCurto/fmtMet` | `src/domain/rnc-formatacao.ts` — **pendente** (Fase 2) |
+| `filtra()`, `agrupa()`, `val()` | `src/domain/rnc-filtros.ts` ✅ |
+| `renderKpis()` (cálculo) | `src/domain/rnc-kpis.ts` ✅ |
+| `mesLab/rncDesc/rncFull/rncCurto/fmtMet` | `src/domain/rnc-formatacao.ts` ✅ |
 | `svg()/el()/txt()/rbar()/ticks()` + cada `render*` de gráfico | `src/components/rnc/charts/*.tsx` — **pendente** (Fase 4): `GraficoEvolucaoMensal`, `GraficoDonutResultado`, `GraficoStackMensal`, `BarraHorizontal` (genérico, reuso produto/problema/família), `GraficoDiaSemana`, `HeatmapMesProblema` |
 | `renderRec()` / `renderDet()` | `TabelaReincidencia.tsx` / `TabelaDetalhamento.tsx` (TanStack Table) — **pendente** (Fase 5) |
-| `st` (objeto mutável) + `render()` | `useReducer` em `src/components/rnc/RelatorioRncClient.tsx` — **pendente** (Fase 5) |
-| `themeBtn` / `prefers-color-scheme` | `ThemeProvider` ✅ (Fase 0), paleta real do relatório ainda **pendente** (Fase 3) |
-| `csvBtn` (Blob client-side) | handler dentro do Client Component — **pendente** (Fase 5) |
-| `:root{--plane:...}` / `html[data-theme]` | tokens Tailwind v4 em `globals.css` — placeholder neutro hoje, paleta real **pendente** (Fase 3) |
-| `@media print{...}` | mantido quase igual em `globals.css` — **pendente** (Fase 3, junto com o tema) |
-| `idbar`/`footer` | `Cabecalho.tsx` / `Rodape.tsx` — **pendente** (Fase 3 ou 4) |
+| `st` (objeto mutável) + `render()` | `useReducer` em `src/components/rnc/RelatorioRncClient.tsx` — **pendente** (Fase 5): liga `BarraFiltros.tsx` (hoje estática), os gráficos e o botão de CSV (hoje `disabled`) ao `FiltroState`/`filtra()` reais |
+| `themeBtn` / `prefers-color-scheme` | `ThemeToggleButton.tsx` ✅ (usa `next-themes`, mesmo comportamento do original: sem persistência entre sessões) |
+| `csvBtn` (Blob client-side) | handler dentro do Client Component — **pendente** (Fase 5); botão já existe em `Cabecalho.tsx`, `disabled` até lá |
+| `:root{--plane:...}` / `html[data-theme]` | tokens `--rnc-*` em `globals.css` ✅ — porte 1:1 dos valores claro/escuro do original, seletor `html[data-theme="dark"]` virou `:root.dark` (mesma convenção de `ThemeProvider.tsx`) |
+| `@media print{...}` | portado 1:1 em `globals.css` ✅ (não testado numa impressão real ainda — os gráficos/tabelas que o `@media print` esconde/ajusta só existem a partir da Fase 4/5) |
+| `idbar`/`footer` | `Cabecalho.tsx` ✅ / `Rodape.tsx` ✅ |
+| `.filters` (`fMes`/`fRes`/`fFam`/`fRnc`/`fBusca`) | `BarraFiltros.tsx` ✅ — casca visual com opções reais de `rnc.json`, **sem interatividade** ainda (Fase 5) |
+| `renderKpis()` (HTML dos cartões) | `Kpis.tsx` ✅ — recebe `KpisRnc` já calculado (`calcularKpis`), por isso funciona hoje com o dataset completo e não muda quando a Fase 5 passar `rows` filtradas |
+| `.grid` com os 9 cards de gráfico/tabela | `Card.tsx` ✅ (casca `c3`..`c12`) + `page.tsx` ✅ — mesma ordem/tamanho de coluna do original; conteúdo de cada card é placeholder (`Gráfico — Fase 4` / `Tabela — Fase 5`) até a fase correspondente |
 
 ## Estado
 
 - **Fase 0 (fundação) ✅** (commit `3e16151`, pushado) — scaffold Next.js 15
   App Router + TS strict + Tailwind v4/shadcn + `next-themes`, sem
-  banco/auth. Paleta neutra provisória (baseColor slate) — a paleta real do
-  relatório entra na Fase 3.
-- **Fase 1 (ingestão) ✅** (commit `665c66a`, aguardando push — pedir
-  autorização antes) — ver seção "Dados" acima para todos os detalhes.
-- **Fase 2 (domínio puro)** — próximo passo. Portar de
-  `Relatorio_de_Reclamacoes_RNC_jan_a_ago_2026_Alltak.html`
-  (`PAINEL CC/`, linhas ~296-400 do `<script>`) as funções `filtra`,
-  `agrupa`, `val`, KPIs (`renderKpis`, só a parte de CÁLCULO, não o HTML) e
-  formatação (`mesLab`, `rncFull`, `rncCurto`, `fmtMet`) para
-  `src/domain/*.ts`, com testes Vitest comparando contra os números que o
-  HTML mostra hoje (mesmo método usado no 5S NEXT: comparar valor a valor
-  contra a fonte original).
-- **Fases seguintes:** 3 (tema/layout com a paleta real: laranja `--s1`/azul
-  `--s2`/verde `--s3` + heatmap `seq-1..6`), 4 (os 6 gráficos SVG em React),
-  5 (tabelas + filtros + `useReducer` + export CSV), 6 (verificação:
-  `typecheck/lint/test/build` + comparação visual/numérica contra o HTML),
-  7 (deploy Vercel).
+  banco/auth. Os tokens `--background`/`--primary`/etc. de `globals.css` já
+  nasceram com os valores reais do relatório (o comentário da época dizia
+  "paleta neutra baseColor slate", mas isso nunca refletiu o CSS de fato —
+  corrigido na Fase 3).
+- **Fase 1 (ingestão) ✅** (commit `665c66a`, pushado) — ver seção "Dados"
+  acima para todos os detalhes.
+- **Fase 2 (domínio puro) ✅** — aguardando autorização para commit. Portado
+  de `Relatorio_de_Reclamacoes_RNC_jan_a_ago_2026_Alltak.html` (linhas
+  ~296-426 do `<script>`) para `src/domain/`:
+  - `rnc-filtros.ts` — `filtra()`/`val()`/`agrupa()`, com `FiltroState`
+    explícito (substitui o `st` mutável) e `agrupa<K>` genérico (aceita
+    chave numérica ou string).
+  - `rnc-kpis.ts` — `calcularKpis()`, só a parte de CÁLCULO dos 5 cartões de
+    `renderKpis` (o HTML dos cartões fica pra Fase 4/5).
+  - `rnc-formatacao.ts` — `nf0`, `nf1`, `mesLab`, `rncDesc`, `rncFull`,
+    `rncCurto`, `fmtMet` (com `Metrica = "n" | "qtd"` explícito no lugar de
+    `st.met`).
+  - Testes Vitest (37, todos passando): fixtures sintéticas pequenas
+    cobrindo cada dimensão de filtro/agregação/formatação isoladamente +
+    casos-limite (lista vazia, um único mês, sem base de comparação), mais
+    um bloco de integração usando `src/data/rnc.json` real que confere
+    `calcularKpis` contra os números já validados na Fase 1 (total 1.160,
+    soma de quantidade 72.769,15, 873 procedentes). `typecheck`/`lint`
+    limpos.
+- **Fase 3 (tema/layout) ✅** — aguardando autorização para commit. Objetivo
+  explícito do usuário: **preservar o frontend do HTML original** — não
+  reinventar a UI em componentes shadcn genéricos.
+  - `globals.css` — tokens `--rnc-*` com os valores claro/escuro 1:1 do
+    `:root`/`html[data-theme="dark"]` original (`--rnc-s1/s2/s3`,
+    `--rnc-seq-1..6`, `--rnc-plane/surface/ink/muted/grid/axis/border`,
+    etc.), família de fonte `system-ui,-apple-system,"Segoe UI",sans-serif`
+    (a fonte Google Inter da Fase 0 foi removida — o original não usa
+    webfont) e todo o CSS bespoke portado quase 1:1 (`.idbar`, `header.top`,
+    `.filters`, `.chip`, `.grid`/`.c3`..`.c12`, `.kpi`, classes de SVG
+    (`.gl`/`.bl`/`.tk`/`.vl`/`.mk`/`.dim`/`.hc-hi`/`.hc-lo`), `#tip`, tabela,
+    `.idbar`/`footer`, `@media print`, breakpoint de 720px). Os tokens
+    semânticos do shadcn (`--background`/`--primary`/etc.) continuam
+    existindo mas não são a fonte da verdade visual — o relatório usa
+    sempre `--rnc-*` diretamente.
+  - `src/components/rnc/`: `Cabecalho.tsx` (idbar + header, período e
+    legenda calculados de `rnc.json`), `ThemeToggleButton.tsx` (client,
+    `next-themes`, mesmo comportamento do original — sem persistência),
+    `Rodape.tsx` (footer; números dataset-específicos do original tipo "31
+    sem resultado" viraram texto de regra geral, pra não ficar
+    desatualizado a cada `pnpm importar-rnc`), `BarraFiltros.tsx` (casca
+    visual dos filtros, opções reais, **sem interatividade** — Fase 5),
+    `Kpis.tsx` (os 5 cartões, recebe `KpisRnc` já calculado), `Card.tsx`
+    (casca `.card cN` reaproveitada pelos 9 cards de gráfico/tabela),
+    `paleta.ts` (`COR_RESULTADO`/`COR_SEQ`, cores por índice de
+    resultado/heatmap — usado aqui na legenda, e de novo nos gráficos da
+    Fase 4).
+  - `page.tsx` monta a página inteira com dados reais (`filtra(data,
+    filtroVazio())` + `calcularKpis`) — os KPIs já são reais e corretos
+    hoje; os 9 cards de gráfico/tabela mostram placeholder (`Gráfico — Fase
+    4` / `Tabela — Fase 5`) no mesmo tamanho/posição do original.
+  - Verificado: `typecheck`/`lint`/`test` (37 testes) limpos, `next build`
+    passa. Visual conferido rodando `pnpm dev` e comparando screenshot
+    (Playwright, claro e escuro) lado a lado com o HTML original — mesma
+    tipografia, cores, espaçamento e estrutura de grid; nenhum erro no
+    console do navegador.
+- **Fases seguintes:** 4 (os 6 gráficos SVG em React, consumindo
+  `rnc-filtros.ts`/`rnc-formatacao.ts`/`paleta.ts`, substituindo os
+  placeholders "Gráfico — Fase 4"), 5 (tabelas + `BarraFiltros`
+  interativa + `useReducer` + export CSV, consumindo `rnc-kpis.ts` —
+  `Kpis.tsx`/`Card.tsx` já prontos pra receber dados filtrados), 6
+  (verificação: `typecheck/lint/test/build` + comparação visual/numérica
+  contra o HTML), 7 (deploy Vercel).
 
 ## Ponto em aberto (não bloqueante)
 

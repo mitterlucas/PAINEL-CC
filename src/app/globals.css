@@ -7,7 +7,7 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --font-sans: var(--font-rnc);
   --color-card: var(--card);
   --color-card-foreground: var(--card-foreground);
   --color-popover: var(--popover);
@@ -28,23 +28,17 @@
   --radius-md: calc(var(--radius) * 0.8);
   --radius-lg: var(--radius);
   --radius-xl: calc(var(--radius) * 1.4);
-
-  /* Paleta de domínio do relatório RNC (série 1/2/3 = resultado da
-     reclamação; seq-1..6 = intensidade do heatmap) — portada do HTML
-     original (Relatorio_de_Reclamacoes_RNC), mesmos valores em claro/escuro
-     daquele arquivo. Fica fora do conjunto semântico do shadcn de propósito:
-     é semântica de dado, não identidade visual. */
-  --color-rnc-s1: var(--cor-rnc-s1);
-  --color-rnc-s2: var(--cor-rnc-s2);
-  --color-rnc-s3: var(--cor-rnc-s3);
 }
 
 /*
- * Placeholder de Fase 0 — paleta neutra padrão do shadcn (baseColor slate).
- * A identidade visual real do relatório (laranja/azul/verde do HTML + tons
- * seq-1..6 do heatmap) entra numa fase própria de tema/layout, junto com o
- * ThemeProvider e a página real — não vale a pena migrar antes de ter
- * conteúdo pra estilizar.
+ * Paleta e tokens do relatório RNC — porte 1:1 do :root/html[data-theme] do
+ * HTML original (Relatorio_de_Reclamacoes_RNC_jan_a_ago_2026_Alltak.html,
+ * linhas 11-30), com prefixo --rnc- pra não colidir com os tokens semânticos
+ * do shadcn acima (que ficam sem uso real — este app É o relatório, não uma
+ * casca de componentes shadcn genéricos). Os valores de --primary/--ring do
+ * bloco shadcn foram alinhados a --rnc-s1 só por consistência de quem olhar
+ * um componente shadcn eventual; a fonte da verdade visual do relatório é
+ * sempre --rnc-*.
  */
 :root {
   --background: #f7f7f6;
@@ -67,9 +61,32 @@
   --ring: #eb6834;
   --radius: 0.875rem;
 
-  --cor-rnc-s1: #eb6834;
-  --cor-rnc-s2: #2a78d6;
-  --cor-rnc-s3: #1baf7a;
+  color-scheme: light;
+  --rnc-plane: #f4f2ee;
+  --rnc-surface: #ffffff;
+  --rnc-surface-2: #faf9f6;
+  --rnc-ink: #0b0b0b;
+  --rnc-ink-2: #52514e;
+  --rnc-muted: #898781;
+  --rnc-grid: #e6e4dd;
+  --rnc-axis: #c9c7bf;
+  --rnc-border: rgba(11, 11, 11, 0.1);
+  --rnc-s1: #eb6834;
+  --rnc-s2: #2a78d6;
+  --rnc-s3: #1baf7a;
+  --rnc-seq-1: #fbe3d7;
+  --rnc-seq-2: #f7c3aa;
+  --rnc-seq-3: #f2a37e;
+  --rnc-seq-4: #eb6834;
+  --rnc-seq-5: #c94f20;
+  --rnc-seq-6: #9c3c17;
+  --rnc-good: #0ca30c;
+  --rnc-crit: #d03b3b;
+  --rnc-warn: #fab219;
+  --rnc-chip: #efece5;
+  --rnc-shadow:
+    0 1px 2px rgba(11, 11, 11, 0.04),
+    0 8px 24px rgba(11, 11, 11, 0.05);
 }
 
 :root.dark {
@@ -92,9 +109,32 @@
   --input: #2c2c2a;
   --ring: #d95926;
 
-  --cor-rnc-s1: #d95926;
-  --cor-rnc-s2: #3987e5;
-  --cor-rnc-s3: #199e70;
+  color-scheme: dark;
+  --rnc-plane: #0d0d0d;
+  --rnc-surface: #1a1a19;
+  --rnc-surface-2: #141413;
+  --rnc-ink: #ffffff;
+  --rnc-ink-2: #c3c2b7;
+  --rnc-muted: #898781;
+  --rnc-grid: #2c2c2a;
+  --rnc-axis: #383835;
+  --rnc-border: rgba(255, 255, 255, 0.1);
+  --rnc-s1: #d95926;
+  --rnc-s2: #3987e5;
+  --rnc-s3: #199e70;
+  --rnc-seq-1: #3a2318;
+  --rnc-seq-2: #5e3520;
+  --rnc-seq-3: #8a4a24;
+  --rnc-seq-4: #d95926;
+  --rnc-seq-5: #ef7c4d;
+  --rnc-seq-6: #f79f79;
+  --rnc-good: #0ca30c;
+  --rnc-crit: #d03b3b;
+  --rnc-warn: #fab219;
+  --rnc-chip: #262624;
+  --rnc-shadow:
+    0 1px 2px rgba(0, 0, 0, 0.3),
+    0 8px 24px rgba(0, 0, 0, 0.35);
 }
 
 @layer base {
@@ -102,6 +142,608 @@
     @apply border-border outline-ring/50;
   }
   body {
-    @apply bg-background text-foreground font-sans;
+    @apply bg-background text-foreground;
+  }
+}
+
+/* ================================================================
+ * A partir daqui: CSS bespoke do relatório, portado quase 1:1 do HTML
+ * original (linhas 31-175) — a UI do relatório não usa componentes shadcn
+ * genéricos, é a mesma identidade visual do arquivo autocontido. Seletores
+ * html[data-theme="dark"] viraram :root.dark (mesma convenção já adotada em
+ * ThemeProvider.tsx com next-themes attribute="class").
+ * ================================================================ */
+
+:root,
+:root.dark {
+  --font-rnc: system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+
+body {
+  margin: 0;
+  background: var(--rnc-plane);
+  color: var(--rnc-ink);
+  font-family: var(--font-rnc);
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+.wrap {
+  max-width: 1520px;
+  margin: 0 auto;
+  padding: 20px 22px 56px;
+}
+
+/* ---------- header ---------- */
+header.top {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 20px;
+  flex-wrap: wrap;
+  margin-bottom: 16px;
+}
+h1 {
+  margin: 0;
+  font-size: 25px;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+.sub {
+  color: var(--rnc-ink-2);
+  font-size: 12px;
+  margin-top: 5px;
+}
+.brandbox {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+.legend-top {
+  display: flex;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+.lg {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11.5px;
+  color: var(--rnc-ink-2);
+}
+.sw {
+  width: 10px;
+  height: 10px;
+  border-radius: 3px;
+  flex: none;
+}
+.tbtn {
+  border: 1px solid var(--rnc-border);
+  background: var(--rnc-surface);
+  color: var(--rnc-ink-2);
+  border-radius: 999px;
+  padding: 7px 13px;
+  font-size: 11.5px;
+  cursor: pointer;
+  font-weight: 600;
+  font-family: inherit;
+  white-space: nowrap;
+}
+.tbtn:hover {
+  background: var(--rnc-chip);
+}
+.tbtn:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+/* ---------- filter bar ---------- */
+.filters {
+  background: var(--rnc-surface);
+  border: 1px solid var(--rnc-border);
+  border-radius: 14px;
+  padding: 12px 14px;
+  box-shadow: var(--rnc-shadow);
+  margin-bottom: 16px;
+}
+.frow {
+  display: flex;
+  gap: 18px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+.fgroup {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  flex-wrap: wrap;
+}
+.flab {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--rnc-muted);
+  margin-right: 2px;
+}
+.chip {
+  border: 1px solid var(--rnc-border);
+  background: var(--rnc-surface);
+  color: var(--rnc-ink-2);
+  border-radius: 999px;
+  padding: 5px 11px;
+  font-size: 11.5px;
+  cursor: pointer;
+  font-family: inherit;
+  font-weight: 600;
+  transition:
+    background 0.12s,
+    color 0.12s;
+}
+.chip:hover {
+  background: var(--rnc-chip);
+}
+.chip[aria-pressed="true"] {
+  background: var(--rnc-s1);
+  border-color: var(--rnc-s1);
+  color: #fff;
+}
+select,
+input[type="search"] {
+  font-family: inherit;
+  font-size: 12px;
+  padding: 6px 9px;
+  border-radius: 8px;
+  border: 1px solid var(--rnc-border);
+  background: var(--rnc-surface);
+  color: var(--rnc-ink);
+}
+.active-note {
+  margin-top: 10px;
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+  font-size: 11.5px;
+  color: var(--rnc-ink-2);
+}
+.tag {
+  background: var(--rnc-chip);
+  border-radius: 999px;
+  padding: 4px 10px;
+  display: inline-flex;
+  gap: 7px;
+  align-items: center;
+  font-weight: 600;
+}
+.tag button {
+  border: 0;
+  background: none;
+  color: var(--rnc-muted);
+  cursor: pointer;
+  font-size: 14px;
+  line-height: 1;
+  padding: 0;
+  font-family: inherit;
+}
+.tag button:hover {
+  color: var(--rnc-crit);
+}
+
+/* ---------- grid ---------- */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  gap: 14px;
+}
+.card {
+  background: var(--rnc-surface);
+  border: 1px solid var(--rnc-border);
+  border-radius: 14px;
+  padding: 14px 16px 12px;
+  box-shadow: var(--rnc-shadow);
+  min-width: 0;
+}
+.card h2 {
+  margin: 0 0 2px;
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--rnc-muted);
+}
+.card .hint {
+  font-size: 10.5px;
+  color: var(--rnc-muted);
+  margin-bottom: 8px;
+}
+.c3 {
+  grid-column: span 3;
+}
+.c4 {
+  grid-column: span 4;
+}
+.c5 {
+  grid-column: span 5;
+}
+.c6 {
+  grid-column: span 6;
+}
+.c7 {
+  grid-column: span 7;
+}
+.c8 {
+  grid-column: span 8;
+}
+.c12 {
+  grid-column: span 12;
+}
+@media (max-width: 1100px) {
+  .c3,
+  .c4,
+  .c5,
+  .c6,
+  .c7,
+  .c8 {
+    grid-column: span 12;
+  }
+}
+
+/* ---------- kpi ---------- */
+.kpis {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 14px;
+  margin-bottom: 14px;
+}
+@media (max-width: 900px) {
+  .kpis {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+.kpi {
+  background: var(--rnc-surface);
+  border: 1px solid var(--rnc-border);
+  border-radius: 14px;
+  padding: 13px 15px;
+  box-shadow: var(--rnc-shadow);
+}
+.kpi .k {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--rnc-muted);
+}
+.kpi .v {
+  font-size: 29px;
+  font-weight: 800;
+  margin-top: 4px;
+  letter-spacing: -0.02em;
+}
+.kpi .v small {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--rnc-ink-2);
+  letter-spacing: 0;
+}
+.kpi .d {
+  font-size: 11px;
+  color: var(--rnc-ink-2);
+  margin-top: 2px;
+}
+.up {
+  color: var(--rnc-crit);
+  font-weight: 700;
+}
+.dn {
+  color: var(--rnc-good);
+  font-weight: 700;
+}
+
+/* ---------- svg ---------- */
+svg {
+  display: block;
+  width: 100%;
+  overflow: visible;
+}
+.gl {
+  stroke: var(--rnc-grid);
+  stroke-width: 1;
+}
+.bl {
+  stroke: var(--rnc-axis);
+  stroke-width: 1;
+}
+.tk {
+  fill: var(--rnc-muted);
+  font-size: 10px;
+}
+.vl {
+  fill: var(--rnc-ink-2);
+  font-size: 10px;
+  font-weight: 600;
+  paint-order: stroke;
+  stroke: var(--rnc-surface);
+  stroke-width: 3px;
+  stroke-linejoin: round;
+}
+.mk {
+  cursor: pointer;
+  transition: opacity 0.12s;
+}
+.mk:hover {
+  opacity: 0.82;
+}
+.dim {
+  opacity: 0.22;
+}
+.hc-hi {
+  fill: #ffffff;
+}
+:root.dark .hc-hi {
+  fill: #141413;
+}
+.hc-lo {
+  fill: var(--rnc-ink);
+}
+
+/* ---------- tooltip ---------- */
+#tip {
+  position: fixed;
+  z-index: 99;
+  pointer-events: none;
+  background: var(--rnc-surface);
+  border: 1px solid var(--rnc-border);
+  border-radius: 10px;
+  padding: 9px 11px;
+  font-size: 11.5px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.16);
+  opacity: 0;
+  transition: opacity 0.1s;
+  max-width: 290px;
+}
+#tip .tt {
+  font-weight: 700;
+  margin-bottom: 4px;
+  font-size: 12px;
+}
+#tip .tr {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  color: var(--rnc-ink-2);
+}
+#tip .tr b {
+  color: var(--rnc-ink);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---------- table ---------- */
+.tblwrap {
+  overflow: auto;
+  max-height: 430px;
+  border-radius: 10px;
+  border: 1px solid var(--rnc-border);
+}
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 11.5px;
+}
+th {
+  position: sticky;
+  top: 0;
+  background: var(--rnc-surface-2);
+  text-align: left;
+  padding: 8px 10px;
+  font-size: 10px;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--rnc-muted);
+  border-bottom: 1px solid var(--rnc-border);
+  cursor: pointer;
+  white-space: nowrap;
+  z-index: 2;
+}
+th:hover {
+  color: var(--rnc-ink);
+}
+td {
+  padding: 7px 10px;
+  border-bottom: 1px solid var(--rnc-grid);
+  color: var(--rnc-ink-2);
+  vertical-align: top;
+}
+td.n {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+tbody tr:hover td {
+  background: var(--rnc-surface-2);
+}
+.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-weight: 700;
+  font-size: 10.5px;
+  white-space: nowrap;
+}
+.pill i {
+  width: 8px;
+  height: 8px;
+  border-radius: 2px;
+  display: inline-block;
+  flex: none;
+}
+.bars {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.mini {
+  height: 6px;
+  border-radius: 3px;
+  background: var(--rnc-seq-4);
+}
+
+/* ---------- identificação do documento ---------- */
+.idbar {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  flex-wrap: wrap;
+  margin-bottom: 14px;
+  padding-bottom: 10px;
+  border-bottom: 2px solid var(--rnc-s1);
+  font-size: 10.5px;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--rnc-muted);
+  font-weight: 600;
+}
+.idbar .org {
+  color: var(--rnc-ink);
+}
+.idbar .org b {
+  letter-spacing: 0.16em;
+}
+.idbar .sep {
+  opacity: 0.5;
+}
+.idbar .conf {
+  margin-left: auto;
+  color: var(--rnc-s1);
+  border: 1px solid var(--rnc-s1);
+  border-radius: 999px;
+  padding: 3px 10px;
+  letter-spacing: 0.06em;
+}
+footer {
+  margin-top: 26px;
+  padding-top: 14px;
+  border-top: 1px solid var(--rnc-border);
+  color: var(--rnc-muted);
+  font-size: 11px;
+  text-align: center;
+  line-height: 1.6;
+  max-width: 1000px;
+  margin-left: auto;
+  margin-right: auto;
+}
+footer b {
+  color: var(--rnc-ink-2);
+}
+footer .fmeta {
+  margin-top: 8px;
+  font-size: 10.5px;
+}
+
+.empty {
+  padding: 30px;
+  text-align: center;
+  color: var(--rnc-muted);
+  font-size: 12px;
+}
+
+.tabs {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 8px;
+}
+.tabs .chip {
+  padding: 4px 10px;
+  font-size: 11px;
+}
+
+/* ---------- impressão / exportar em PDF pelo navegador ---------- */
+@media print {
+  :root {
+    --rnc-plane: #fff;
+    --rnc-surface: #fff;
+    --rnc-surface-2: #fff;
+    --rnc-shadow: none;
+  }
+  :root.dark {
+    --rnc-plane: #fff;
+    --rnc-surface: #fff;
+    --rnc-surface-2: #fff;
+    --rnc-ink: #0b0b0b;
+    --rnc-ink-2: #52514e;
+    --rnc-grid: #e6e4dd;
+    --rnc-axis: #c9c7bf;
+    --rnc-s1: #eb6834;
+    --rnc-s2: #2a78d6;
+    --rnc-s3: #1baf7a;
+    --rnc-seq-1: #fbe3d7;
+    --rnc-seq-2: #f7c3aa;
+    --rnc-seq-3: #f2a37e;
+    --rnc-seq-4: #eb6834;
+    --rnc-seq-5: #c94f20;
+    --rnc-seq-6: #9c3c17;
+  }
+  :root.dark .hc-hi {
+    fill: #fff;
+  }
+  body {
+    background: #fff;
+    zoom: 0.6;
+  }
+  .wrap {
+    max-width: none;
+    padding: 0;
+  }
+  .grid {
+    gap: 18px;
+  }
+  .filters,
+  .tbtn,
+  #tip {
+    display: none !important;
+  }
+  .card,
+  .kpi {
+    break-inside: avoid;
+    box-shadow: none;
+    border-color: #d8d6cf;
+  }
+  .no-print {
+    display: none !important;
+  }
+  .card .hint {
+    display: none;
+  }
+  .idbar,
+  footer {
+    color: #52514e;
+  }
+  @page {
+    size: A4 landscape;
+    margin: 12mm;
+  }
+}
+
+@media (max-width: 720px) {
+  .wrap {
+    padding: 14px 12px 40px;
+  }
+  h1 {
+    font-size: 19px;
+    letter-spacing: 0.1em;
+  }
+  header.top .legend-top {
+    display: none;
+  }
+  .brandbox {
+    width: 100%;
+  }
+  .kpi .v {
+    font-size: 23px;
+  }
+  .card {
+    padding: 12px;
   }
 }
