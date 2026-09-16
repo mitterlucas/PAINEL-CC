@@ -24,7 +24,7 @@ const GLOSSARIO_RNC: Record<string, string> = {
   "15": "Medida errada",
   "16": "Problema de cola",
   "17": "Pedido errado",
-  "18": "Realise",
+  "18": "Release",
   "19": "Adesividade",
   "20": "Falha no vinil",
   "21": "Rugas / amassados / marcas",
