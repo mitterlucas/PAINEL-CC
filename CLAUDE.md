@@ -196,7 +196,7 @@ reverificar; a lógica está descrita acima, não precisa arqueologia).
     (Playwright, claro e escuro) lado a lado com o HTML original — mesma
     tipografia, cores, espaçamento e estrutura de grid; nenhum erro no
     console do navegador.
-- **Fase 4 (gráficos) ✅** (não commitado ainda) — os 6 gráficos SVG em
+- **Fase 4 (gráficos) ✅** (commit `339e7e9`, junto com a Fase 5, pushado) — os 6 gráficos SVG em
   React, em `src/components/rnc/graficos/`: `svg-math.ts`
   (`caminhoBarraArredondada`/`ticksEixo`, porte puro de `rbar()`/`ticks()`),
   `useTooltipFlutuante.ts`/`TooltipFlutuante.tsx` (cada gráfico tem sua
@@ -229,7 +229,7 @@ reverificar; a lógica está descrita acima, não precisa arqueologia).
   tooltip único em vez de tooltip por gráfico) foi descartada depois de
   comparação. Se abrir uma sessão nova pra continuar este projeto, vale
   avisar/checar se já não há outra sessão ativa nele.
-- **Fase 5 (interatividade) ✅ (2026-09-15, ainda não commitado)** — o
+- **Fase 5 (interatividade) ✅ (2026-09-15, commit `339e7e9`, junto com a Fase 4, pushado)** — o
   `useReducer` que liga tudo, mais as duas tabelas que faltavam:
   - `src/components/rnc/estado-pagina.ts` — porta de `st` (mutável) +
     `toggleSet()` do original: `EstadoPagina` (`FiltroState` do domínio +
@@ -281,7 +281,7 @@ reverificar; a lógica está descrita acima, não precisa arqueologia).
     clique em cabeçalho pra ordenar, "Limpar tudo", botão CSV habilitado) —
     todos os `active-note`/KPIs/gráficos reagem corretamente, sem erro no
     console, claro e escuro.
-- **Fase 6 (verificação final) ✅ (2026-09-15)** — `typecheck`/`lint`/
+- **Fase 6 (verificação final) ✅ (2026-09-15, commit `4640381`, pushado)** — `typecheck`/`lint`/
   `test`(51)/`build` limpos, mais uma comparação automatizada (Playwright,
   dois `BrowserContext` na mesma execução: um abrindo o HTML original via
   `file://`, outro o Next.js local) extraindo e comparando texto renderizado
@@ -297,7 +297,7 @@ reverificar; a lógica está descrita acima, não precisa arqueologia).
   real (`page.emulateMedia({media:'print'})` + screenshot): filtros/botões/
   tooltip/hints escondidos, card "Detalhamento" (`.no-print`) escondido,
   fundo branco, 9 cards visíveis — como esperado.
-- **Fase 7 (deploy) ✅ (2026-09-15)** — projeto importado na Vercel a
+- **Fase 7 (deploy) ✅ (2026-09-15, commit `90e6d42`, pushado)** — projeto importado na Vercel a
   partir do GitHub (`mitterlucas/PAINEL-CC`), sem variáveis de ambiente
   (nada a configurar — sem banco, sem auth). URL de produção:
   **https://painel-cc-two.vercel.app/**. Redeploy automático a cada push
@@ -305,6 +305,31 @@ reverificar; a lógica está descrita acima, não precisa arqueologia).
   `rnc.json` atualizado, sem nenhum passo manual adicional.
 
 **Todas as 7 fases do projeto estão concluídas.**
+
+## Pós-lançamento
+
+- **2026-09-16 — correção de glossário RNC 18:** usuário editou manualmente
+  o HTML de referência corrigindo a descrição do código RNC 18 de "Realise"
+  para "Release" (commit `56ae22a`, isolado, só o `.html`). Em seguida a
+  mesma correção foi propagada para o dado real do app: `src/domain/
+  rnc-glossario.ts` corrigido, `src/data/rnc.json` regerado via
+  `pnpm importar-rnc`, verificado (`typecheck`/`lint`/`test` 51/`build`) e
+  commitado em separado (commit `e248e3e`), só depois de autorização
+  explícita — mesmo o pedido inicial já tendo mencionado "atualizar os
+  dados" (reforça a regra de commit só com autorização explícita).
+- **2026-09-24 — ajuste de texto do cabeçalho** (commit `cb2a5da`) —
+  `Cabecalho.tsx`: "Qualidade / RNC" → "Controle de Qualidade" e "Documento
+  interno — uso restrito" → "Documento interno" (texto do rodapé da faixa
+  superior, sem mudança de dado/lógica).
+- **Decisão descartada em 2026-09-21 — upload de `.xlsx` pela própria UI do
+  relatório:** usuário pediu diagnóstico sobre substituir o fluxo manual
+  (`pnpm importar-rnc` + commit) por upload direto na interface. Duas
+  opções foram levantadas — (1) client-side sem persistir (só pré-
+  visualização local) e (2) persistente (exigiria API route + banco/blob
+  storage ou commit automático via GitHub API, quebrando a decisão "sem
+  banco de dados" do projeto) — e ambas foram rejeitadas pelo usuário como
+  inviáveis no escopo dele. O fluxo manual continua sendo o oficial; não
+  reabrir essa alternativa nem propor uma 3ª variante não solicitada.
 
 ## Ponto em aberto (não bloqueante)
 
