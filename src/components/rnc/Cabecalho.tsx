@@ -33,7 +33,7 @@ export function Cabecalho({ onExportarCsv }: { onExportarCsv?: () => void }) {
           <h1>Relatório de Reclamações</h1>
           <div className="sub">
             {primeira && ultima
-              ? `Período de ${primeira[R_DATA]} a ${ultima[R_DATA]} · ${nf0(data.rows.length)} registros de RNC · ${data.prods.length} produtos · ${data.rncs.length} motivos de reclamação`
+              ? `Período de ${primeira[R_DATA]} a ${ultima[R_DATA]} · ${nf0(data.rows.length)} registros · ${data.prods.length} produtos · ${data.rncs.length} motivos de reclamação`
               : "Sem dados"}
           </div>
         </div>
