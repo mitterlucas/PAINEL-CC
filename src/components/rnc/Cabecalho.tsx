@@ -24,8 +24,8 @@ export function Cabecalho({ onExportarCsv }: { onExportarCsv?: () => void }) {
           <b>ALLTAK</b> · Desenvolvimento
         </span>
         <span className="sep">·</span>
-        <span>Qualidade / RNC</span>
-        <span className="conf">Documento interno — uso restrito</span>
+        <span>Controle de Qualidade</span>
+        <span className="conf">Documento interno</span>
       </div>
 
       <header className="top">
