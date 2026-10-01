@@ -39,14 +39,18 @@ interface RegistroParcial {
   familia: string;
 }
 
-function arquivoMaisRecente(): string {
+// Todos os arquivos de data/source/, do mais antigo para o mais recente.
+// Os dados são acumulados; em caso de Nro. Único repetido, vale o arquivo
+// mais recente (ver main()).
+function arquivosEmOrdem(): string[] {
   const arquivos = readdirSync(SOURCE_DIR).filter((f) => /\.xlsx?$/i.test(f));
   if (!arquivos.length) {
     throw new Error(`Nenhum .xlsx/.xls encontrado em ${SOURCE_DIR}`);
   }
   return arquivos
     .map((f) => ({ f, mtime: statSync(path.join(SOURCE_DIR, f)).mtimeMs }))
-    .sort((a, b) => b.mtime - a.mtime)[0].f;
+    .sort((a, b) => a.mtime - b.mtime)
+    .map((x) => x.f);
 }
 
 function indiceColuna(cabecalho: string[], nome: string): number {
@@ -88,8 +92,7 @@ function chaveMes(d: Date): string {
   return `${d.getUTCFullYear()}-${String(d.getUTCMonth() + 1).padStart(2, "0")}`;
 }
 
-function lerRegistros(): RegistroParcial[] {
-  const arquivo = arquivoMaisRecente();
+function lerRegistros(arquivo: string): RegistroParcial[] {
   console.log(`Lendo ${arquivo}...`);
   const buf = readFileSync(path.join(SOURCE_DIR, arquivo));
   // cellDates:false (padrão) de propósito — ver comentário de
@@ -188,7 +191,18 @@ function montarData(registros: RegistroParcial[]): RncData {
 }
 
 function main() {
-  const registros = lerRegistros();
+  // Acumula todos os arquivos; Nro. Único repetido é sobrescrito pelo
+  // arquivo mais recente (Map preserva a posição da 1ª inserção).
+  const porNro = new Map<number, RegistroParcial>();
+  let repetidos = 0;
+  for (const arquivo of arquivosEmOrdem()) {
+    for (const r of lerRegistros(arquivo)) {
+      if (porNro.has(r.nro)) repetidos++;
+      porNro.set(r.nro, r);
+    }
+  }
+  console.log(`${porNro.size} registro(s) no total, ${repetidos} repetido(s) entre arquivos.`);
+  const registros = [...porNro.values()];
   const data = montarData(registros);
   writeFileSync(OUTPUT_PATH, JSON.stringify(data));
   console.log(

@@ -102,24 +102,24 @@ describe("calcularKpis — dado real (src/data/rnc.json)", () => {
   const todasAsLinhas = filtra(data, filtroVazio());
   const k = calcularKpis(data, todasAsLinhas);
 
-  it("total bate com os 1.160 registros validados na Fase 1", () => {
-    expect(k.total).toBe(1160);
+  it("total bate com 1.160 (jan-ago, Fase 1) + 107 (set) registros", () => {
+    expect(k.total).toBe(1267);
   });
 
-  it("qtdTotal bate com a soma da planilha original (72.769,15)", () => {
-    expect(k.qtdTotal).toBeCloseTo(72769.15, 2);
+  it("qtdTotal bate com a soma das planilhas (72.769,15 + 7.923,8)", () => {
+    expect(k.qtdTotal).toBeCloseTo(80692.95, 2);
   });
 
   it("procedentes bate com contagem independente por DATA.ress", () => {
     const procedentesIndependente = todasAsLinhas.filter(
       (r) => data.ress[r[0]] === "Procedente",
     ).length;
-    expect(procedentesIndependente).toBe(873); // conferido manualmente contra rnc.json
+    expect(procedentesIndependente).toBe(937); // 873 jan-ago + 64 set, conferido manualmente contra rnc.json
     expect(k.procedentes).toBe(procedentesIndependente);
   });
 
-  it("porMes cobre os 8 meses do período e soma de volta o total", () => {
-    expect(k.porMes).toHaveLength(8);
+  it("porMes cobre os 9 meses do período e soma de volta o total", () => {
+    expect(k.porMes).toHaveLength(9);
     expect(k.porMes.reduce((acc, m) => acc + m.n, 0)).toBe(k.total);
   });
 
