@@ -24,8 +24,10 @@ original.
 - **Ingestão via arquivo solto na pasta**, não ETL agendado. O `.xlsx`/`.xls`
   é exportado manualmente do Sankhya, colocado em `data/source/`, e
   `pnpm importar-rnc` (`scripts/importar-rnc.ts`) gera `src/data/rnc.json`
-  (commitado — é o dado do relatório, não segredo). Fluxo de atualização
-  documentado no `README.md`.
+  (commitado — é o dado do relatório, não segredo). **O importador acumula
+  TODOS os arquivos de `data/source/`** (desde 2026-10-01), deduplicando por
+  `Nro. Único` (repetido vale o arquivo de mtime mais recente). Fluxo de
+  atualização documentado no `README.md`.
 - **Formato de dado colunar preservado**, igual ao `DATA` do HTML original:
   `prods/fams/rncs/rncdesc/ress/meses` (dicionários de valor único) + `rows`
   (cada linha referencia os dicionários por índice — ver
@@ -113,7 +115,7 @@ reverificar; a lógica está descrita acima, não precisa arqueologia).
 | HTML original | Next.js novo |
 |---|---|
 | `.xls` do Sankhya (pasta `PAINEL CC/`, manual) | `data/source/*.xls(x)` ✅ |
-| — | `scripts/importar-rnc.ts` ✅ (lê o mais recente por mtime, gera `src/data/rnc.json`) |
+| — | `scripts/importar-rnc.ts` ✅ (lê todos os arquivos de `data/source/`, deduplica por Nro. Único, gera `src/data/rnc.json`) |
 | `const DATA = {...}` | `src/data/rnc.json` ✅ + `src/domain/rnc-tipos.ts` ✅ (tipos) |
 | `const R_RES=0,...` | `src/domain/rnc-tipos.ts` (`R_RES`...`R_FAM`) ✅ |
 | glossário/família reverse-engineered | `src/domain/rnc-glossario.ts` ✅ |
@@ -321,6 +323,17 @@ reverificar; a lógica está descrita acima, não precisa arqueologia).
   `Cabecalho.tsx`: "Qualidade / RNC" → "Controle de Qualidade" e "Documento
   interno — uso restrito" → "Documento interno" (texto do rodapé da faixa
   superior, sem mudança de dado/lógica).
+- **2026-10-01 — dados de setembro adicionados** (commit `353469b`, pushado):
+  novo export `Relacionamento_Telemarketing.xls` (15 colunas, as 6 usadas
+  mantêm o nome; 107 registros, todos de 2026-09) somado ao
+  `Reclamações jan -Agosto.xls` (1.160). Usuário escolheu **acumular**, não
+  substituir. `rnc.json` agora tem 1.267 registros, 2026-01 a 2026-09, soma
+  de quantidade 80.692,95, 937 procedentes. Testes de integração em
+  `rnc-kpis.test.ts` atualizados para esses totais — **a cada novo export
+  somado, esses números fixos precisam ser atualizados de novo**. Os
+  arquivos antigos ficam em `data/source/` (são parte do dado). Nota: o nome
+  do HTML de referência ("jan_a_ago") e as validações "1160/1160" da Fase 1
+  continuam valendo só para o recorte jan-ago.
 - **Decisão descartada em 2026-09-21 — upload de `.xlsx` pela própria UI do
   relatório:** usuário pediu diagnóstico sobre substituir o fluxo manual
   (`pnpm importar-rnc` + commit) por upload direto na interface. Duas
